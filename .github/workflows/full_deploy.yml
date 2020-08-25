@@ -1,0 +1,29 @@
+name: Build and Deploy on Netlify
+on:
+    repository_dispatch:
+      types: [trigger-first-deploy]  
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Build Website
+        run: |
+             npm install
+             npm build       
+      - name: Deploy to Netlify      
+        id:   netlify-deploy
+        uses: nwtgck/actions-netlify@v1.1
+        with:
+            publish-dir: 'build'
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            production-branch: master
+        env:
+            NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+            NETLIFY_SITE_ID: ${{ secrets.NETLIFY_WEB_SITE_ID }}
+      - run: echo netlify URL ${{ steps.netlify-deploy.outputs.deploy-url }}  
